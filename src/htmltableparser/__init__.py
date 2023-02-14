@@ -1,25 +1,34 @@
 from html.parser import HTMLParser
 
+VERSION = "0.0.1"
 class HTMLTableParser(HTMLParser):
 
-    tables = []
-    headers = []
-    rows = []
-    row = []
+    def __init__(self):
+        super().__init__()
 
-    col = 0
-    rowspan = []
+        self.tables = []
+        self.headers = []
+        self.rows = []
+        self.row = []
 
-    in_head = False
-    in_th = False
-    in_td = False
-    in_rowspan = False
+        self.col = 0
+        self.rowspan = []
+
+        self.in_head = False
+        self.in_th = False
+        self.in_td = False
+        self.in_rowspan = False
 
     @staticmethod
     def get_attr_value(attrs, attr_name):
         for attr in attrs:
             if attr[0] == attr_name:
                 return attr[1]
+
+    def fill_cols_using_rowspan(self):
+        while self.col < len(self.rowspan) and self.rowspan[self.col] > 0:
+            self.row.append(self.rows[len(self.rows)-1][self.col])
+            self.col += 1
 
     def handle_starttag(self, tag, attrs):
         if tag == 'thead':
@@ -28,11 +37,17 @@ class HTMLTableParser(HTMLParser):
             self.in_th = True
         if tag == 'tr':
             self.col = 0
+            self.rowspan = [c - 1 if c > 0 else 0 for c in self.rowspan]
+            if sum(self.rowspan) == 0:
+                self.rowspan = []
+            self.fill_cols_using_rowspan()
+
         if tag == 'td':
-            if not self.in_rowspan:
-                rowspan = self.get_attr_value(attrs, 'rowspan')
-                self.rowspan.append(int(rowspan) if rowspan else 0)
             self.in_td = True
+            self.col += 1
+            rowspan = self.get_attr_value(attrs, 'rowspan')
+            self.rowspan.append(int(rowspan) if rowspan else 0)
+
 
     def handle_endtag(self, tag):
         if tag == 'thead':
@@ -40,18 +55,11 @@ class HTMLTableParser(HTMLParser):
         if tag == 'th':
             self.in_th = False
         if tag == 'td':
-            self.col += 1
             self.in_td = False
-            while self.col < len(self.rowspan) and self.rowspan[self.col] > 0:
-                self.row.append(self.rows[len(self.rows)-1][self.col])
-                self.col += 1
+            self.fill_cols_using_rowspan()
             
-        if not self.in_head and tag == 'tr':
+        if tag == 'tr' and not self.in_head:
             self.rows.append(self.row)
-            self.rowspan = [c - 1 if c > 0 else 0 for c in self.rowspan]
-            self.in_rowspan = sum(self.rowspan) > 0
-            if not self.in_rowspan:
-                self.rowspan = []
             self.row = []
             
         if tag == 'table':
@@ -63,8 +71,9 @@ class HTMLTableParser(HTMLParser):
             self.rows = []
 
     def handle_data(self, data):
-        if self.in_head and self.in_th:
-            self.headers.append(data)
+        data_stripped = data.strip()
+        if self.in_th and self.in_head:
+            self.headers.append(data_stripped)
 
-        if not self.in_head and self.in_td:
-            self.row.append(data.strip())
+        if self.in_td and not self.in_head:
+            self.row.append(data_stripped)
