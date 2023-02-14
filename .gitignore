@@ -1,1 +1,8 @@
 *.pyc
+*.egg-info/
+.idea/
+.pytest_cache/
+build/
+venv/
+coverage_html_report/
+.coverage

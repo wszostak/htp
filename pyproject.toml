@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "html_table_parser"
+authors = [
+    {name = "Wojciech Szóstak", email = "gwszostak@gmail.com"},
+]
+description = "Simple HTML table parser using built in python libraries"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["html", "table", "parser"]
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = []
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [
+    'coverage[toml]>=5.0.3',
+    'pytest>=6',
+]
+
+#[tool.setuptools.dynamic]
+#version = {attr = "htmltableparser.VERSION"}
+
+#[tool.setuptools.packages.find]
+#where=["src"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -p no:cacheprovider"
+testpaths = [
+    "tests/**/*.py",
+]
+
+[tool.coverage.run]
+source = ["src"]
+command_line = "-m pytest"
+
+[tool.coverage.report]
+fail_under = 85.0
+
+[tool.coverage.html]
+directory = "coverage_html_report"
