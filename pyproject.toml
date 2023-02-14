@@ -29,12 +29,6 @@ test = [
     'pytest>=6',
 ]
 
-#[tool.setuptools.dynamic]
-#version = {attr = "htmltableparser.VERSION"}
-
-#[tool.setuptools.packages.find]
-#where=["src"]
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q -p no:cacheprovider"
