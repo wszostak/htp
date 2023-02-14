@@ -7,7 +7,7 @@ Usage
 -----
 
 ```python
-from htmltableparser import HTMLTableParser
+from htp import HTMLTableParser
 
 html = """
 <table>

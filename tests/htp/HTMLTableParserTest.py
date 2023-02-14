@@ -1,4 +1,4 @@
-from htmltableparser import HTMLTableParser
+from htp import HTMLTableParser
 
 
 def test_no_table():
